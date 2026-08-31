@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoppy Music — Musiques éclectiques. Artistes locaux. Bières artisanales.</title>
+    <link rel="icon" type="image/png" href="assets/images/symbole_hoppy_music.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@700&family=Quattrocento+Sans:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Couleurs */
+            --color-bg: #181617;
+            --color-text: #FBFCFB;
+            --color-text-secondary: #A0A0A0;
+            --color-surface: #2A2829;
+            --color-border: #3A3839;
+            --color-glass: rgba(251, 252, 251, 0.10);
+            --color-overlay-light: rgba(251, 252, 251, 0.60);
+            --color-overlay-dark: rgba(24, 22, 23, 0.55);
+
+            /* Typographie */
+            --font-heading: 'Reem Kufi', sans-serif;
+            --font-body: 'Quattrocento Sans', sans-serif;
+            --font-session: 'Permanent Marker', cursive;
+
+            /* Espacement */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 48px;
+            --space-2xl: 80px;
+            --space-3xl: 120px;
+
+            /* Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 200ms ease;
+            --transition-normal: 300ms ease;
+            --transition-slow: 600ms ease-out;
+            --transition-reveal: 550ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* ============================================
+           REVEAL AU SCROLL
+           ============================================ */
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity var(--transition-reveal), transform var(--transition-reveal);
+        }
+
+        .reveal.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1.is-visible { transition-delay: 90ms; }
+        .reveal-delay-2.is-visible { transition-delay: 180ms; }
+        .reveal-delay-3.is-visible { transition-delay: 270ms; }
+
+        .split-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity var(--transition-reveal), transform var(--transition-reveal);
+        }
+
+        .split-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity var(--transition-reveal), transform var(--transition-reveal);
+        }
+
+        .split-left.is-visible,
+        .split-right.is-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .reveal, .split-left, .split-right {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .hop-drift, .hop-pulse, .scroll-indicator {
+                animation: none !important;
+            }
+        }
+
+        /* ============================================
+           HOUBLON — MOTIF DISCRET
+           ============================================ */
+
+        .hop-drift {
+            position: absolute;
+            opacity: 0.10;
+            pointer-events: none;
+            animation: hopDrift 34s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes hopDrift {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            50%  { transform: translate(14px, -22px) rotate(6deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        .hop-badge {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--color-bg);
+            padding: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: var(--space-xl) var(--space-2xl);
+            background: transparent;
+            backdrop-filter: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all var(--transition-slow);
+        }
+
+        .nav.scrolled {
+            padding: var(--space-md) var(--space-2xl);
+            background: rgba(24, 22, 23, 0.92);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            gap: var(--space-xl);
+            flex: 1;
+        }
+
+        .nav-right {
+            justify-content: flex-end;
+        }
+
+        .nav-link {
+            font-family: var(--font-heading);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-text);
+            text-decoration: none;
+            opacity: 1;
+            transition: opacity var(--transition-fast);
+        }
+
+        .nav-link:hover {
+            opacity: 0.7;
+        }
+
+        .nav-center {
+            position: relative;
+            width: 58px;
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-slow);
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .nav.scrolled .nav-center {
+            width: 42px;
+            height: 42px;
+        }
+
+        .nav-center img.nav-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Menu mobile */
+        .burger {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 1001;
+            background: none;
+            border: none;
+        }
+
+        .burger span {
+            width: 25px;
+            height: 2px;
+            background: var(--color-text);
+            transition: all var(--transition-normal);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            height: 100vh;
+            background: var(--color-bg);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2xl);
+            transition: right var(--transition-normal);
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .mobile-menu .nav-link {
+            font-size: 28px;
+        }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            min-height: 620px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transform: scale(1.06);
+            animation: heroBgIn 12s ease-out forwards;
+        }
+
+        @keyframes heroBgIn {
+            from { transform: scale(1.14); }
+            to   { transform: scale(1.06); }
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                rgba(24, 22, 23, 0.35) 0%,
+                rgba(24, 22, 23, 0.55) 55%,
+                rgba(24, 22, 23, 0.85) 100%
+            );
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 0 var(--space-lg);
+            animation: fadeInUp 1.1s ease-out;
+        }
+
+        .hero-logo {
+            max-width: 460px;
+            width: 78%;
+            margin: 0 auto var(--space-lg);
+        }
+
+        .hero-baseline {
+            font-family: var(--font-body);
+            font-size: 17px;
+            letter-spacing: 0.05em;
+            color: var(--color-text);
+            opacity: 0.85;
+            margin-bottom: var(--space-xl);
+        }
+
+        .hero-next {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 14px 28px;
+            border: 1px solid var(--color-glass);
+            border-radius: var(--radius-full);
+            background: rgba(251, 252, 251, 0.06);
+            backdrop-filter: blur(6px);
+            text-decoration: none;
+            color: var(--color-text);
+            transition: all var(--transition-fast);
+            animation: hopPulseGlow 3.4s ease-in-out infinite;
+        }
+
+        .hero-next:hover {
+            background: rgba(251, 252, 251, 0.14);
+            transform: translateY(-2px);
+        }
+
+        @keyframes hopPulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(251,252,251,0.0); }
+            50% { box-shadow: 0 0 0 6px rgba(251,252,251,0.04); }
+        }
+
+        .hero-next-tag {
+            font-family: var(--font-heading);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+        }
+
+        .hero-next-title {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: var(--space-xl);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            animation: bounce 1.8s ease-in-out infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--color-text);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ============================================
+           SECTION SHADOWS
+           ============================================ */
+
+        .section-shadow-top { position: relative; }
+        .section-shadow-top::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(24, 22, 23, 1) 0%, rgba(24, 22, 23, 0) 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .section-shadow-bottom { position: relative; }
+        .section-shadow-bottom::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to top, rgba(24, 22, 23, 1) 0%, rgba(24, 22, 23, 0) 100%);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ============================================
+           CONCEPT — SESSION VS FESTIVAL
+           ============================================ */
+
+        .concept-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background: var(--color-bg);
+        }
+
+        .concept-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto var(--space-xl);
+        }
+
+        .concept-eyebrow {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-md);
+        }
+
+        .concept-intro h2 {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+        }
+
+        .concept-intro p {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .concept-card {
+            position: relative;
+            padding: var(--space-2xl) var(--space-xl);
+            border-radius: var(--radius-lg);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            overflow: hidden;
+            transition: transform var(--transition-fast);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .concept-card.session {
+            background-image:
+                linear-gradient(rgba(24, 22, 23, 0.55), rgba(24, 22, 23, 0.92)),
+                url('assets/images/events/session-2025-louvres/4.jpg');
+        }
+
+        .concept-card.festival {
+            background-image:
+                linear-gradient(rgba(24, 22, 23, 0.55), rgba(24, 22, 23, 0.92)),
+                url('assets/images/events/festival-2024/3.jpg');
+        }
+
+        .concept-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .concept-card-tag {
+            font-family: var(--font-heading);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-md);
+        }
+
+        .concept-card h3 {
+            font-family: var(--font-heading);
+            font-size: 30px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-lg);
+        }
+
+        .concept-card.session h3 .session-word {
+            font-family: var(--font-session);
+            text-transform: none;
+            font-size: 34px;
+            letter-spacing: 0;
+            display: inline-block;
+        }
+
+        .concept-card p {
+            font-size: 15px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+
+        .concept-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.03em;
+        }
+
+        .concept-footnote {
+            max-width: 640px;
+            margin: var(--space-2xl) auto 0;
+            text-align: center;
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+        }
+
+        .concept-footnote img {
+            width: 28px;
+            height: 28px;
+            opacity: 0.85;
+        }
+
+        /* ============================================
+           FESTIVAL SECTION
+           ============================================ */
+
+        .festival-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background-image:
+                linear-gradient(rgba(24, 22, 23, 0.88), rgba(24, 22, 23, 0.88)),
+                url('assets/images/fond_hoppy_music.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .festival-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .festival-header {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: var(--space-xl);
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .festival-poster {
+            border-radius: var(--radius-md);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .festival-edition-tag {
+            font-family: var(--font-heading);
+            font-size: 13px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .festival-header h2 {
+            font-family: var(--font-heading);
+            font-size: 44px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+        }
+
+        .festival-header p {
+            font-size: 16px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .festival-infos {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-lg);
+            font-size: 15px;
+        }
+
+        .festival-infos li {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .festival-cta {
+            display: flex;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .festival-block {
+            background: rgba(24, 22, 23, 0.72);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .festival-block h3 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+        }
+
+        .lineup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-sm) var(--space-lg);
+        }
+
+        .lineup-item {
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .lineup-name {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            letter-spacing: 0.03em;
+        }
+
+        .lineup-style {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .onsite-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: var(--space-md);
+            font-size: 14px;
+        }
+
+        .onsite-item strong {
+            display: block;
+            font-family: var(--font-heading);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .festival-partners {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .festival-past {
+            margin-top: var(--space-xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .festival-past h3 {
+            font-family: var(--font-heading);
+            font-size: 15px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+
+        .past-card {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: var(--space-lg);
+            align-items: center;
+            background: rgba(24, 22, 23, 0.6);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+        }
+
+        .past-card img {
+            border-radius: var(--radius-sm);
+        }
+
+        .past-card h4 {
+            font-family: var(--font-heading);
+            font-size: 20px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xs);
+        }
+
+        .past-card p {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        /* ============================================
+           SESSIONS SECTION
+           ============================================ */
+
+        .sessions-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background: var(--color-bg);
+        }
+
+        .sessions-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sessions-header {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto var(--space-xl);
+        }
+
+        .sessions-header h2 {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+        }
+
+        .sessions-header .session-word {
+            font-family: var(--font-session);
+            text-transform: none;
+        }
+
+        .sessions-header p {
+            color: var(--color-text-secondary);
+            font-size: 16px;
+        }
+
+        .sessions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+        }
+
+        .session-card {
+            position: relative;
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--color-border);
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .session-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(0,0,0,0.4);
+        }
+
+        .session-card.upcoming {
+            border-style: dashed;
+            border-color: var(--color-text-secondary);
+        }
+
+        .session-photos {
+            height: 240px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .session-photos img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-slow);
+        }
+
+        .session-photos:hover img {
+            transform: scale(1.04);
+        }
+
+        .session-card-content {
+            position: relative;
+            padding: var(--space-lg);
+        }
+
+        .session-card-title {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xs);
+        }
+
+        .session-card-meta {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-md);
+        }
+
+        .session-card-text {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .session-badge-status {
+            display: inline-block;
+            font-family: var(--font-heading);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            background: var(--color-glass);
+            margin-bottom: var(--space-sm);
+        }
+
+        .session-card.upcoming .session-badge-status {
+            background: transparent;
+            border: 1px solid var(--color-text);
+        }
+
+        /* ============================================
+           LIGHTBOX
+           ============================================ */
+
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 9, 9, 0.94);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90vw;
+            max-height: 85vh;
+            border-radius: var(--radius-sm);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: var(--space-xl);
+            right: var(--space-xl);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--color-text);
+            background: transparent;
+            color: var(--color-text);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* ============================================
+           HISTOIRE SECTION
+           ============================================ */
+
+        .histoire-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background: var(--color-bg);
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .histoire-bg-doodle {
+            position: absolute;
+            top: 0;
+            right: -10%;
+            width: 55%;
+            max-width: 560px;
+            opacity: 0.06;
+            animation: hopDrift 46s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .histoire-content {
+            max-width: 680px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .histoire-title {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xl);
+        }
+
+        .histoire-text {
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+            color: var(--color-text-secondary);
+        }
+
+        /* ============================================
+           SOUTIEN SECTION
+           ============================================ */
+
+        .soutien-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background: var(--color-surface);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-2xl);
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: var(--radius-lg);
+        }
+
+        .soutien-content { order: 2; }
+
+        .soutien-illustration {
+            width: 100%;
+            max-width: 460px;
+            aspect-ratio: 4 / 5;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            order: 1;
+        }
+
+        .soutien-title {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xl);
+        }
+
+        .soutien-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: var(--space-lg);
+            color: var(--color-text-secondary);
+        }
+
+        /* ============================================
+           RESEAUX SECTION
+           ============================================ */
+
+        .reseaux-section {
+            padding: var(--space-2xl) var(--space-xl);
+            background: var(--color-bg);
+            position: relative;
+        }
+
+        .reseaux-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .reseaux-title {
+            font-family: var(--font-heading);
+            font-size: 40px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .reseaux-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .reseaux-photo {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            transition: transform var(--transition-fast);
+        }
+
+        .reseaux-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .reseaux-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xl);
+        }
+
+        .reseaux-link {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--color-text);
+            text-decoration: none;
+            transition: opacity var(--transition-fast);
+        }
+
+        .reseaux-link:hover { opacity: 0.7; }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+
+        .footer {
+            background: var(--color-surface);
+            padding: var(--space-2xl) var(--space-xl);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .footer-col h3 {
+            font-family: var(--font-heading);
+            font-size: 16px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: var(--space-md);
+        }
+
+        .footer-logo { max-width: 180px; margin-bottom: var(--space-md); }
+
+        .footer-socials { display: flex; gap: var(--space-md); }
+
+        .footer-social-link {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--color-text);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text);
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            font-size: 12px;
+        }
+
+        .footer-social-link:hover {
+            background: var(--color-glass);
+            transform: translateY(-2px);
+        }
+
+        .footer-link {
+            display: block;
+            color: var(--color-text);
+            text-decoration: none;
+            margin-bottom: var(--space-sm);
+            transition: opacity var(--transition-fast);
+        }
+
+        .footer-link:hover { opacity: 0.7; }
+
+        .footer-assoc {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .footer-divider {
+            height: 90px;
+            background-image:
+                linear-gradient(rgba(42, 40, 41, 0.55), rgba(42, 40, 41, 0.55)),
+                url('assets/images/events/session-2025-ecouen/2.jpg');
+            background-size: cover;
+            background-position: center 30%;
+            border-radius: var(--radius-md);
+            margin: var(--space-xl) 0;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+
+        .btn-primary {
+            font-family: var(--font-body);
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 12px 32px;
+            background: var(--color-text);
+            color: var(--color-bg);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            font-family: var(--font-body);
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 12px 32px;
+            background: transparent;
+            color: var(--color-text);
+            border: 1px solid var(--color-text);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-secondary:hover { background: var(--color-glass); }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+
+        @media (max-width: 1024px) {
+            .nav-left, .nav-right { display: none; }
+            .burger { display: flex; }
+
+            .concept-grid,
+            .festival-header,
+            .sessions-grid,
+            .soutien-section {
+                grid-template-columns: 1fr;
+            }
+
+            .soutien-illustration { margin: 0 auto; }
+            .soutien-content { order: 1; text-align: center; }
+            .soutien-illustration { order: 2; }
+
+            .past-card { grid-template-columns: 1fr; text-align: center; }
+            .past-card img { margin: 0 auto; max-width: 260px; }
+        }
+
+        @media (max-width: 640px) {
+            .concept-intro h2,
+            .festival-header h2,
+            .sessions-header h2,
+            .histoire-title,
+            .soutien-title,
+            .reseaux-title {
+                font-size: 30px;
+            }
+
+            .hero-baseline { font-size: 14px; }
+
+            .nav { padding: var(--space-md) var(--space-lg); }
+            .nav-center { width: 48px; height: 48px; }
+            .nav.scrolled .nav-center { width: 36px; height: 36px; }
+
+            .session-photos { height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="nav" id="nav">
+        <div class="nav-left">
+            <a href="#sessions" class="nav-link">Sessions</a>
+            <a href="#festival" class="nav-link">Festival</a>
+        </div>
+        <button class="nav-center" id="navCenter" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Retour à l'accueil">
+            <img src="assets/images/symbole_hoppy_music.png" alt="Hoppy Music" class="nav-logo">
+        </button>
+        <div class="nav-right">
+            <a href="#histoire" class="nav-link">Histoire</a>
+            <a href="#soutien" class="nav-link">Soutenez-nous</a>
+        </div>
+        <div class="burger" id="burger" role="button" aria-label="Ouvrir le menu">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#sessions" class="nav-link">Sessions</a>
+        <a href="#festival" class="nav-link">Festival</a>
+        <a href="#histoire" class="nav-link">Histoire</a>
+        <a href="#soutien" class="nav-link">Soutenez-nous</a>
+        <a href="#contact" class="nav-link">Contact</a>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <img src="assets/images/events/festival-2024/4.jpg" alt="Hoppy Music Live" class="hero-bg">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <img src="assets/images/HOPPY_MUSIC_Logo.png" alt="Hoppy Music" class="hero-logo">
+            <p class="hero-baseline">Musiques éclectiques. Artistes locaux. Bières artisanales.</p>
+            <a href="#festival" class="hero-next">
+                <span>
+                    <span class="hero-next-tag">Prochain rendez-vous</span><br>
+                    <span class="hero-next-title">Hoppy Music Festival — 12 septembre 2026</span>
+                </span>
+            </a>
+        </div>
+        <div class="scroll-indicator">
+            <svg fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- CONCEPT — SESSION VS FESTIVAL -->
+    <section class="concept-section section-shadow-top">
+        <div class="concept-intro reveal">
+            <p class="concept-eyebrow">Deux formats, une même énergie</p>
+            <h2>Session ou Festival ?</h2>
+            <p>Hoppy Music, c'est deux façons de vivre la musique locale et la bière artisanale à Louvres et ses alentours.</p>
+        </div>
+        <div class="concept-grid">
+            <div class="concept-card session split-left">
+                <p class="concept-card-tag">Format intimiste — plusieurs fois par an</p>
+                <h3>Hoppy Music <span class="session-word">Session</span></h3>
+                <p>Des soirées plus intimistes, dans des lieux qui changent à chaque fois : bar, brasserie, gymnase... Chaque Session a sa propre thématique, son ambiance, sa programmation. Souvent gratuites ou accessibles, toujours conviviales.</p>
+                <span class="concept-meta">4 éditions — dont 1 à venir</span>
+            </div>
+            <div class="concept-card festival split-right">
+                <p class="concept-card-tag">Format annuel — le grand rendez-vous</p>
+                <h3>Hoppy Music Festival</h3>
+                <p>Le rendez-vous annuel à Louvres : plusieurs scènes, une programmation complète, un village d'artisans, des foodtrucks, et bien sûr des bières artisanales. Une journée entière dédiée à la musique locale et à la convivialité.</p>
+                <span class="concept-meta">2ᵉ édition — 12 septembre 2026</span>
+            </div>
+        </div>
+        <p class="concept-footnote reveal">
+            <img src="assets/images/symbole_hoppy_music.png" alt="">
+            <span><em>Hop</em> veut dire houblon en anglais — une bonne dose de musique houblonnée, entre amertume et bonne humeur.</span>
+        </p>
+    </section>
+
+    <!-- FESTIVAL SECTION -->
+    <section class="festival-section section-shadow-top section-shadow-bottom" id="festival">
+        <div class="festival-wrap">
+            <div class="festival-header">
+                <img src="assets/images/events/festival-2026/affiche.jpg" alt="Affiche Hoppy Music Festival 2026" class="festival-poster reveal">
+                <div class="reveal reveal-delay-1">
+                    <p class="festival-edition-tag">2ᵉ édition</p>
+                    <h2>Hoppy Music Festival</h2>
+                    <p>Une journée placée sous le signe de la musique, de la convivialité et des découvertes : artistes locaux, bières artisanales, foodtrucks, artisans et animations pour toute la famille.</p>
+                    <ul class="festival-infos">
+                        <li>📅 Samedi 12 septembre 2026 — 15h → 2h</li>
+                        <li>🎟️ Gratuit jusqu'à 18h, puis 5€</li>
+                        <li>📍 6 rue du 8 Mai 1945, 95380 Louvres</li>
+                    </ul>
+                    <div class="festival-cta">
+                        <a href="https://fb.me/e/68LZyV0mZ" target="_blank" class="btn-primary">Voir l'événement Facebook</a>
+                        <a href="#soutien" class="btn-secondary">Soutenir le festival</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="festival-block reveal">
+                <h3>Line-up 2026</h3>
+                <div class="lineup-grid">
+                    <div class="lineup-item"><span class="lineup-name">A Lady Music</span><span class="lineup-style">Mélodies envoûtantes</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Marcelle Julien Off</span><span class="lineup-style">Pop française</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Ajilinsta</span><span class="lineup-style">Reggae / Pop / Rap</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Komlily</span><span class="lineup-style">Vibes caribéennes</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Emberdrive Band</span><span class="lineup-style">Rock alternatif</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Benjamin Bbeennjjaammiinn</span><span class="lineup-style">Univers immersif</span></div>
+                    <div class="lineup-item"><span class="lineup-name">Randomprogression</span><span class="lineup-style">Voyage sonore</span></div>
+                </div>
+            </div>
+
+            <div class="festival-block reveal">
+                <h3>Sur place</h3>
+                <div class="onsite-grid">
+                    <div class="onsite-item"><strong>Foodtrucks</strong>Jetlagfood · Baraccras</div>
+                    <div class="onsite-item"><strong>Brasserie</strong>Brasserie d'Orville</div>
+                    <div class="onsite-item"><strong>Village d'artisans</strong>Bijoux, bougies, crochet, couture, créations, bien-être</div>
+                    <div class="onsite-item"><strong>Associations</strong>Danse & découvertes locales</div>
+                    <div class="onsite-item"><strong>Son & lumière</strong>Photonkaustic</div>
+                    <div class="onsite-item"><strong>Animations</strong>Pour toute la famille</div>
+                </div>
+                <p class="festival-partners" style="margin-top: var(--space-md);">Avec le soutien de la Ville de Louvres.</p>
+            </div>
+
+            <div class="festival-past">
+                <h3>Édition précédente</h3>
+                <div class="past-card reveal">
+                    <img src="assets/images/events/festival-2024/2.jpg" alt="Hoppy Music Festival 2024">
+                    <div>
+                        <h4>Hoppy Music Festival — 1ère édition</h4>
+                        <p>14 septembre 2024, Louvres. 7 artistes de la scène francilienne : Elisa Do Brasil, Red Mourning, La Malle, Imswan, Starmonger, Black Smoke Celebration, Douglas. Bières de la Brasserie d'Orville, foodtrucks et espace chill.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SESSIONS SECTION -->
+    <section class="sessions-section" id="sessions">
+        <div class="sessions-wrap">
+            <div class="sessions-header reveal">
+                <h2>Hoppy Music <span class="session-word">Sessions</span></h2>
+                <p>Des rendez-vous plus fréquents, plus intimistes, toujours dans un lieu et sur une thématique différente. Voici les éditions passées — et celle à venir.</p>
+            </div>
+            <div class="sessions-grid">
+
+                <div class="session-card reveal">
+                    <div class="session-photos" data-gallery="ecouen">
+                        <img src="assets/images/events/session-2025-ecouen/1.jpg" alt="Hoppy Music Session — Écouen">
+                    </div>
+                    <div class="session-card-content">
+                        <span class="hop-badge"><img src="assets/images/symbole_hoppy_music.png" alt=""></span>
+                        <span class="session-badge-status">Session #1</span>
+                        <h3 class="session-card-title">La Malle + Ariel Weiss</h3>
+                        <p class="session-card-meta">18 avril 2025 — La Grange à Dîmes, Écouen</p>
+                        <p class="session-card-text">Trio break-beat punk et poésie rock, en collaboration avec l'association "À qui le tour 95". Gratuit sur réservation.</p>
+                    </div>
+                </div>
+
+                <div class="session-card reveal reveal-delay-1">
+                    <div class="session-photos" data-gallery="louvres2025">
+                        <img src="assets/images/events/session-2025-louvres/3.jpg" alt="Hoppy Music Session #2 — Louvres">
+                    </div>
+                    <div class="session-card-content">
+                        <span class="hop-badge"><img src="assets/images/symbole_hoppy_music.png" alt=""></span>
+                        <span class="session-badge-status">Session #2</span>
+                        <h3 class="session-card-title">Warm up & nuit électronique</h3>
+                        <p class="session-card-meta">13 septembre 2025 — Brasserie d'Orville, Louvres</p>
+                        <p class="session-card-text">Flo et Titou, Emile, Randomprogression et Zdoogy pour une nuit tech/house et hardgroove dans les murs de la brasserie.</p>
+                    </div>
+                </div>
+
+                <div class="session-card reveal reveal-delay-2">
+                    <div class="session-photos" data-gallery="roller2026">
+                        <img src="assets/images/events/session-2026-roller/1.jpg" alt="Hoppy Music Session #3 — édition Roller">
+                    </div>
+                    <div class="session-card-content">
+                        <span class="hop-badge"><img src="assets/images/symbole_hoppy_music.png" alt=""></span>
+                        <span class="session-badge-status">Session #3 — Spéciale Roller</span>
+                        <h3 class="session-card-title">Édition Roller</h3>
+                        <p class="session-card-meta">23 mai 2026 — Gymnase Jean Colignon, Louvres</p>
+                        <p class="session-card-text">Jayp, Novy Collectif, Meloww et Isocells : pop, afrobeat, électro et UK garage, avec une piste de roller sur place.</p>
+                    </div>
+                </div>
+
+                <div class="session-card upcoming reveal reveal-delay-3">
+                    <div class="session-photos" data-gallery="jazz2026">
+                        <img src="assets/images/affiche_standard.jpg" alt="Hoppy Music Session #4 — Jazz">
+                    </div>
+                    <div class="session-card-content">
+                        <span class="hop-badge"><img src="assets/images/symbole_hoppy_music.png" alt=""></span>
+                        <span class="session-badge-status">À venir — Session #4</span>
+                        <h3 class="session-card-title">Session Jazz</h3>
+                        <p class="session-card-meta">21 novembre 2026</p>
+                        <p class="session-card-text">Programmation complète bientôt disponible — restez connectés sur Instagram et Facebook.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- LIGHTBOX -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Fermer">✕</button>
+        <img id="lightboxImg" src="" alt="">
+    </div>
+
+    <!-- HISTOIRE SECTION -->
+    <section class="histoire-section section-shadow-top section-shadow-bottom" id="histoire">
+        <img src="assets/images/illustration_2.png" alt="" class="histoire-bg-doodle" aria-hidden="true">
+        <div class="histoire-content">
+            <h2 class="histoire-title reveal">Notre Histoire</h2>
+            <p class="histoire-text reveal">
+                En 2023, une bande de passionnés de musique, de bière artisanale et de valeurs communes se rencontre à Louvres. Très vite, l'envie de créer quelque chose ensemble prend forme : une association culturelle et collaborative, tournée vers le partage et l'énergie locale — Culture Louvres et alentours voit le jour.
+            </p>
+            <p class="histoire-text reveal reveal-delay-1">
+                De cette rencontre naît une idée simple : conjuguer nos deux passions. <em>Hop</em> veut dire houblon en anglais — alors on a choisi de servir une bonne dose de musique houblonnée. Le Hoppy Music Festival est né, bientôt rejoint par les Hoppy Music Sessions, des rendez-vous plus intimistes tout au long de l'année.
+            </p>
+            <p class="histoire-text reveal reveal-delay-2">
+                Notre ambition : revenir chaque année en grandissant, tisser du lien social sur notre territoire, et faire vivre une scène culturelle locale, bienveillante et éco-responsable.
+            </p>
+        </div>
+    </section>
+
+    <!-- SOUTIEN SECTION -->
+    <section class="soutien-section" id="soutien">
+        <div class="soutien-content reveal">
+            <h2 class="soutien-title">Soutenez-nous</h2>
+            <p class="soutien-text">
+                Hoppy Music, c'est avant tout une aventure collective portée par des bénévoles passionnés. Chaque événement que nous organisons demande du temps, de l'énergie et des ressources pour vous offrir des moments mémorables.
+            </p>
+            <p class="soutien-text">
+                Votre soutien nous permet de continuer à faire vivre la scène locale, à promouvoir les artistes émergents et à créer des expériences uniques mêlant musique et convivialité.
+            </p>
+            <a href="https://www.helloasso.com/associations/culture-louvres-et-alentours" target="_blank" class="btn-primary">Faire un don</a>
+        </div>
+        <img src="assets/images/events/session-2026-roller/2.jpg" alt="Hoppy Music en concert" class="soutien-illustration reveal">
+    </section>
+
+    <!-- RESEAUX SECTION -->
+    <section class="reseaux-section section-shadow-top">
+        <div class="reseaux-content">
+            <h2 class="reseaux-title reveal">Suivez-nous</h2>
+            <div class="reseaux-grid">
+                <img src="assets/images/HMSIMG12x.jpg" alt="Hoppy Music" class="reseaux-photo reveal">
+                <img src="assets/images/HMSIMG32x.jpg" alt="Hoppy Music" class="reseaux-photo reveal reveal-delay-1">
+                <img src="assets/images/HMSIMG42x.jpg" alt="Hoppy Music" class="reseaux-photo reveal reveal-delay-2">
+                <img src="assets/images/HMSIMG62x.jpg" alt="Hoppy Music" class="reseaux-photo reveal reveal-delay-3">
+            </div>
+            <div class="reseaux-links reveal">
+                <a href="https://www.instagram.com/hoppymusic_festival/" target="_blank" class="reseaux-link">Instagram</a>
+                <a href="https://www.facebook.com/hoppymusicfestival" target="_blank" class="reseaux-link">Facebook</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-col">
+                <img src="assets/images/HOPPY_MUSIC_Logo.png" alt="Hoppy Music" class="footer-logo">
+                <div class="footer-socials">
+                    <a href="https://www.instagram.com/hoppymusic_festival/" target="_blank" class="footer-social-link">IG</a>
+                    <a href="https://www.facebook.com/hoppymusicfestival" target="_blank" class="footer-social-link">FB</a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>Liens</h3>
+                <a href="#sessions" class="footer-link">Sessions</a>
+                <a href="#festival" class="footer-link">Festival</a>
+                <a href="#histoire" class="footer-link">Histoire</a>
+                <a href="#soutien" class="footer-link">Soutenez-nous</a>
+            </div>
+            <div class="footer-col">
+                <h3>Contact</h3>
+                <p style="margin-bottom: var(--space-md);">Louvres<br>Val d'Oise, 95380<br>France</p>
+                <a href="#" class="footer-link" id="contactEmailLink">Nous écrire</a>
+                <p class="footer-assoc" style="margin-top: var(--space-lg);">Un projet porté par l'association Culture Louvres et alentours.</p>
+            </div>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            © 2026 Hoppy Music — Louvres, Val d'Oise
+        </div>
+    </footer>
+
+    <script>
+        // ============================================
+        // NAVIGATION SCROLL
+        // ============================================
+
+        const nav = document.getElementById('nav');
+        const burger = document.getElementById('burger');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        burger.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.mobile-menu .nav-link').forEach(link => {
+            link.addEventListener('click', () => mobileMenu.classList.remove('active'));
+        });
+
+        // ============================================
+        // SCROLL REVEAL
+        // ============================================
+
+        const revealTargets = document.querySelectorAll('.reveal, .split-left, .split-right');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        revealTargets.forEach(el => revealObserver.observe(el));
+
+        // ============================================
+        // LIGHTBOX GALLERIES
+        // ============================================
+
+        const galleries = {
+            ecouen: [
+                'assets/images/events/session-2025-ecouen/1.jpg',
+                'assets/images/events/session-2025-ecouen/2.jpg',
+                'assets/images/events/session-2025-ecouen/3.jpg',
+                'assets/images/events/session-2025-ecouen/4.jpg'
+            ],
+            louvres2025: [
+                'assets/images/events/session-2025-louvres/3.jpg',
+                'assets/images/events/session-2025-louvres/4.jpg'
+            ],
+            roller2026: [
+                'assets/images/events/session-2026-roller/1.jpg',
+                'assets/images/events/session-2026-roller/2.jpg',
+                'assets/images/events/session-2026-roller/3.jpg',
+                'assets/images/events/session-2026-roller/4.jpg',
+                'assets/images/events/session-2026-roller/5.jpg',
+                'assets/images/events/session-2026-roller/6.jpg'
+            ],
+            jazz2026: [
+                'assets/images/affiche_standard.jpg'
+            ]
+        };
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        function openLightbox(galleryKey) {
+            const photos = galleries[galleryKey];
+            if (!photos || !photos.length) return;
+            let index = 0;
+            lightboxImg.src = photos[index];
+            lightbox.classList.add('active');
+
+            lightboxImg.onclick = () => {
+                index = (index + 1) % photos.length;
+                lightboxImg.src = photos[index];
+            };
+        }
+
+        document.querySelectorAll('[data-gallery]').forEach(el => {
+            el.addEventListener('click', () => openLightbox(el.dataset.gallery));
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lightboxImg.src = '';
+        }
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        // ============================================
+        // EMAIL ANTI-SPAM (assemblé au runtime, pas de mailto en clair dans le HTML)
+        // ============================================
+
+        const emailLink = document.getElementById('contactEmailLink');
+        if (emailLink) {
+            const emailUser = 'contact';
+            const emailDomain = 'hoppymusic.com';
+            emailLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'mailto:' + emailUser + '@' + emailDomain;
+            });
+        }
+
+        // ============================================
+        // SMOOTH SCROLL
+        // ============================================
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId.length <= 1) return;
+                const target = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
