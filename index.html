@@ -1369,6 +1369,24 @@
             .tabbar { display: block; }
             body { padding-bottom: 74px; }
 
+            .nav,
+            .nav.scrolled {
+                justify-content: center;
+                padding: var(--space-md) var(--space-lg);
+                background: transparent;
+                backdrop-filter: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .nav-center,
+            .nav.scrolled .nav-center {
+                width: 104px;
+                height: 104px;
+                position: relative;
+                top: -30px;
+            }
+
             .concept-grid,
             .festival-header,
             .sessions-grid,
@@ -1401,10 +1419,6 @@
             }
 
             .hero-baseline { font-size: 14px; }
-
-            .nav { padding: var(--space-md) var(--space-lg); }
-            .nav-center { width: 48px; height: 48px; }
-            .nav.scrolled .nav-center { width: 36px; height: 36px; }
 
             .session-photos { height: 180px; }
         }
