@@ -1570,7 +1570,7 @@
     <section class="festival-section section-shadow-top section-shadow-bottom" id="festival">
         <div class="festival-wrap">
             <div class="festival-header">
-                <img src="assets/images/events/festival-2026/affiche.jpg" alt="Affiche Hoppy Music Festival 2026" class="festival-poster reveal" loading="lazy">
+                <img src="assets/images/events/festival-2026/affiche.jpg" alt="Affiche Hoppy Music Festival 2026" class="festival-poster reveal" loading="lazy" width="672" height="950">
                 <div class="reveal reveal-delay-1">
                     <p class="festival-edition-tag">2ᵉ édition</p>
                     <h2>Hoppy Music Festival</h2>
@@ -1761,7 +1761,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-col">
-                <img src="assets/images/hoppy-music-logo.svg" alt="Hoppy Music" class="footer-logo">
+                <img src="assets/images/hoppy-music-logo.svg" alt="Hoppy Music" class="footer-logo" width="549" height="275">
                 <div class="footer-socials">
                     <a href="https://www.instagram.com/hoppymusic_festival/" target="_blank" class="footer-social-link">IG</a>
                     <a href="https://www.facebook.com/hoppymusicfestival" target="_blank" class="footer-social-link">FB</a>
@@ -1967,7 +1967,7 @@
                 });
 
                 // --- Sample the logo's pixels into a point cloud ---
-                const sampleWidth = 320;
+                const sampleWidth = 240;
                 const sampleHeight = Math.round(sampleWidth * (img.naturalHeight / img.naturalWidth));
                 const sampleCanvas = document.createElement('canvas');
                 sampleCanvas.width = sampleWidth;
@@ -1978,7 +1978,7 @@
 
                 const targets = [];
                 const colorTs = [];
-                const step = 1;
+                const step = 2;
                 for (let y = 0; y < sampleHeight; y += step) {
                     for (let x = 0; x < sampleWidth; x += step) {
                         const alpha = data[(y * sampleWidth + x) * 4 + 3];
@@ -2060,8 +2060,8 @@
                 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
                 camera.position.z = 5;
 
-                const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
                 function resize() {
                     const rect = wrap.getBoundingClientRect();
@@ -2090,8 +2090,32 @@
                 const posAttr = geometry.attributes.position;
                 const startTime = performance.now();
 
+                // Only render while the hero logo is actually visible and the tab
+                // is active — a decorative WebGL loop has no business burning CPU
+                // (or tanking Lighthouse's TBT) while scrolled off-screen or hidden.
+                let rafId = null;
+                let isIntersecting = true;
+
+                function startLoopIfNeeded() {
+                    if (rafId === null && isIntersecting && !document.hidden) {
+                        rafId = requestAnimationFrame(animate);
+                    }
+                }
+
+                const visibilityObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => { isIntersecting = entry.isIntersecting; });
+                    startLoopIfNeeded();
+                }, { threshold: 0 });
+                visibilityObserver.observe(wrap);
+
+                document.addEventListener('visibilitychange', startLoopIfNeeded);
+
                 function animate(now) {
-                    requestAnimationFrame(animate);
+                    if (!isIntersecting || document.hidden) {
+                        rafId = null;
+                        return;
+                    }
+                    rafId = requestAnimationFrame(animate);
                     const elapsed = (now - startTime) / 1000;
 
                     mouseX += (targetMouseX - mouseX) * 0.04;
@@ -2124,7 +2148,7 @@
 
                     renderer.render(scene, camera);
                 }
-                requestAnimationFrame(animate);
+                startLoopIfNeeded();
 
             } catch (err) {
                 console.warn('Hero logo particle effect unavailable, using static logo instead.', err);
