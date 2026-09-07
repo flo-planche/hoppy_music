@@ -929,6 +929,51 @@
             color: var(--color-text-secondary);
         }
 
+        .merch-card {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: var(--space-lg);
+            align-items: center;
+        }
+
+        .merch-card img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-sm);
+        }
+
+        .merch-price {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            letter-spacing: 0.03em;
+            margin-bottom: var(--space-sm);
+        }
+
+        .merch-card > div > p:not(.merch-price):not(.merch-note) {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-md);
+        }
+
+        .merch-note {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-bottom: var(--space-md);
+        }
+
+        @media (max-width: 600px) {
+            .merch-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .merch-card img {
+                max-width: 220px;
+                margin: 0 auto;
+            }
+        }
+
         /* ============================================
            SESSIONS SECTION
            ============================================ */
@@ -1612,6 +1657,19 @@
                     <div class="onsite-item"><strong>Animations</strong>Pour toute la famille</div>
                 </div>
                 <p class="festival-partners" style="margin-top: var(--space-md);">Avec le soutien de la Ville de Louvres.</p>
+            </div>
+
+            <div class="festival-block reveal">
+                <h3>Le t-shirt du festival</h3>
+                <div class="merch-card">
+                    <img src="assets/images/t-shirt.jpg" alt="T-shirt officiel Hoppy Music Festival 2026" loading="lazy" width="525" height="700">
+                    <div>
+                        <p class="merch-price">18€</p>
+                        <p>Précommandez votre t-shirt édition Hoppy Music Festival. Une seule et même grande commande sera passée à la fin de l'événement : votre t-shirt vous sera remis en main propre par l'équipe, quelques semaines après le festival.</p>
+                        <p class="merch-note">Précommande uniquement — places limitées, on ne réimprime pas après coup !</p>
+                        <a href="https://www.helloasso.com/associations/culture-louvres-et-alentours/boutiques/pre-commande-t-shirt" target="_blank" class="btn-primary">Précommander mon t-shirt</a>
+                    </div>
+                </div>
             </div>
 
             <div class="festival-past">
